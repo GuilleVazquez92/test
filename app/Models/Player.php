@@ -10,13 +10,17 @@ class Player extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'email',
+        'user_id',
         'player_type_id',
         'life',
         'attack_points',
         'defense_points',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function playerType()
     {

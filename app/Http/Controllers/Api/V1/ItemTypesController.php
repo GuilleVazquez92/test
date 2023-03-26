@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\ItemType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Items\ItemTypeStoreRequest;
+use App\Http\Requests\UpdateRequest;
 
 class ItemTypesController extends Controller
 {
@@ -25,12 +27,8 @@ class ItemTypesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ItemTypeStoreRequest $request)
     {
-        $request->validate([
-            'description' => 'required',
-        ]);
-
         $itemType = ItemType::create($request->all());
 
         return response()->json([
@@ -54,12 +52,8 @@ class ItemTypesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ItemType $itemType)
+    public function update(UpdateRequest $request, ItemType $itemType)
     {
-        $request->validate([
-            'description' => 'string',
-        ]);
-
         $itemType->update($request->all());
 
         return response()->json([

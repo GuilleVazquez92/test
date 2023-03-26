@@ -30,4 +30,6 @@ class Attack extends Model
     {
         return $this->belongsTo(AttackType::class);
     }
+
+    
 }

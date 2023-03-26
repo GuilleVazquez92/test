@@ -22,19 +22,36 @@ Route::post('/logout',[AuthController::class, 'logout'])->name('logout')->middle
 
 ###################      PLAYERS ROUTES         ######################
 
-Route::resource('/player_types', PlayerTypesController::class);
-Route::resource('/players', PlayersController::class);
+Route::resource('/player_types', PlayerTypesController::class)
+->names('player_types')
+->middleware(['auth:api','check.roles:admin']);
+
+Route::resource('/players', PlayersController::class)
+->names('players')
+->middleware(['auth:api','check.roles:admin']);
 
 ###################     ATTACKS ROUTES           ######################
 
-Route::resource('/attack_types', AttackTypesController::class);
-Route::resource('/attacks', AttacksController::class);
+Route::resource('/attack_types', AttackTypesController::class)
+->names('attack_types')
+->middleware(['auth:api','check.roles:admin']);
+
+Route::resource('/attacks', AttacksController::class)
+->names('attacks')
+->middleware(['auth:api','check.roles:player']);
 
 ##############      ITEMS ROUTES                ######################
 
-Route::resource('/item_types', ItemTypesController::class);
-Route::resource('/items', ItemsController::class);
+Route::resource('/item_types', ItemTypesController::class)
+->names('item_types')
+->middleware(['auth:api','check.roles:admin']);
+
+Route::resource('/items', ItemsController::class)
+->names('item')
+->middleware(['auth:api','check.roles:admin']);
 
 ##############      INVENTORIES ROUTES                ######################
 
-Route::resource('/inventories', InventoriesController::class);
+Route::resource('/inventories', InventoriesController::class)
+->names('iventories')
+->middleware(['auth:api','check.roles:player']);

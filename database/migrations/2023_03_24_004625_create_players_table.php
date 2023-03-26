@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('players', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email');
             $table->foreignId('player_type_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->integer('life')->default(100);
             $table->integer('attack_points')->default(5);
             $table->integer('defense_points')->default(5);

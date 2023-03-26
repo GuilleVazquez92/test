@@ -8,9 +8,19 @@ use App\Models\Player;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Inventory;
+use App\Http\Requests\UpdateRequest;
+use App\Http\Requests\Attacks\AttackStoreRequest;
+use App\Services\AttacksService;
 
 class AttacksController extends Controller
 {
+    private $attacksService;
+
+    public function __construct(AttacksService $attacksService)
+    {
+        $this->attacksService = $attacksService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -21,118 +31,50 @@ class AttacksController extends Controller
         return response()->json([
             'success' => true,
             'data' => $attacks,
-        ]);
+        ],200);
     }
 
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AttackStoreRequest $request)
     {
-        $request->validate([
-            'attacker_id'        => 'required|integer',
-            'defender_id'        => 'required|integer',
-            'attack_type_id'     => 'required|integer',
-            'damage'            => 'numeric'
 
-        ]);
-
-        // DATOS DEL ATANQUE  //
         $attack_type    = $request->get('attack_type_id');
         $attacker_id    = $request->get('attacker_id');
-        $attack_power   = AttackType::find($attack_type);
-
-        // DATOS DEL DEFENSOR // 
+     
         $defender_id    = $request->get('defender_id');
 
+        if ($attacker_id != $defender_id) {
+
+            $attacker_data           =  $this->attacksService->generatePoints($attacker_id);
+
+            if ($attacker_data['life'] > 0) {
+
+                $defender_data           = $this->attacksService->generatePoints($defender_id);
+
+                $result =  $attacker_data['points'] - $defender_data['points'];
 
 
-        if ($attacker_id != $defender_id) { // VERIFICA SI NO SON DEL MISMO ID
-
-            // GENERAR PUNTOS DE ATAQUE              ///
-
-            $attacker_item           = Player::with(['item' => function ($query) {
-                $query->wherePivot('equipped', '=', 1);
-            }])->find($attacker_id);
-
-            if ($attacker_item['life'] > 0) {
-
-                $attack_points           = $attacker_item->item->sum('attack_points') + $attacker_item->attack_points;
-
-                // GENERAR PUNTOS DE DEFENSA            //
-
-                $defender_item           = Player::with(['item' => function ($query) {
-                    $query->wherePivot('equipped', '=', 1);
-                }])->find($defender_id);
-
-                $defender_points           = $defender_item->item->sum('defense_points') + $defender_item->defense_points;
+                if ($defender_data['life'] > 0) {
 
 
-                // GENERAR PUNTOS DE VIDA A SER DESCONTADOS
+                    $latest_attack  = $this->attacksService->latest_attack($attacker_id);
 
-                $result =  $attack_points - $defender_points;
-
-                $damage = $result > 0 ? $result : 1;
-
-                // VERIFICA SI EL DEFENSOR TIENE AUN VIDA
-
-                if ($defender_item['life'] > 0) {
-
-                    // TRAER CUAL FUE EL ULTIMO ATAQUE REALIZAFO DEL ATACANTE
-                    $latest_attack  = Attack::where('attacker_id', $attacker_id)->latest()->first();
-
-                    // VERIFICAR SI ESTA TRATANDO DE ENVIAR UN ATQUE TIPO ULTI
-                    if ($attack_type == 3) {
-                        if (isset($latest_attack) and $latest_attack['attack_type_id'] == 1) {
-
-                            $attack_points           = $attack_points * $attack_power['power'];
-                            $result =  $attack_points - $defender_points;
-                            $request['damage'] = $result > 0 ? $result : 1;
-
-                            $attack = Attack::create($request->all());
-                        } else {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'To use the Ulti attack, his last attack must have been a melee attack.',
-                            ], 200);
-                        }
-                    } else {
-                        $attack_points           = $attack_points * $attack_power['power'];
-                        $result =  $attack_points - $defender_points;
-                        $request['damage'] = $result > 0 ? $result : 1;
-
-                        $attack = Attack::create($request->all());
-                    }
-
-                    $life_points_update = $defender_item['life'] - $request['damage'];
-
-                    if ($life_points_update > 0) {
-                        Player::where('id', $defender_id)->update(['life' => $life_points_update]);
-                    } else {
-                        Player::where('id', $defender_id)->update(['life' => 0]);
-                    }
-                    return response()->json([
-                        'success' => true,
-                        'data' => $attack,
-                    ], 201);
+                    return $this->attacksService->attackCreate($attack_type,$latest_attack, $attacker_data,$defender_data,$defender_id,$request);
+                  
                 } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => "The enemy is already dead, you can no longer attack him",
-                    ], 200);
+                    $mesagge = "The enemy is already dead, you can no longer attack him";
+                    return $this->attacksService->responseFalse($mesagge);
                 }
             } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => "You can't launch attacks because you're already dead",
-                ], 200);
+                $mesagge = "You can't launch attacks because you're already dead";
+                return $this->attacksService->responseFalse($mesagge);
             }
         } else {
-            return response()->json([
-                'success' => false,
-                'message' => "You can't attack yourself",
-            ], 200);
+            $mesagge = "You can't attack yourself";
+            return $this->attacksService->responseFalse($mesagge);
         }
     }
 
@@ -152,16 +94,8 @@ class AttacksController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Attack $attack)
+    public function update(UpdateRequest $request, Attack $attack)
     {
-        $request->validate([
-            'attacker_id'        => 'integer',
-            'defender_id'        => 'integer',
-            'attack_type_id'     => 'integer',
-            'damage'            => 'numeric'
-
-        ]);
-
         $attack->update($request->all());
 
         return response()->json([

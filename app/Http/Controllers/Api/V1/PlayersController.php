@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Player;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Players\PlayerStoreRequest;
+use App\Http\Requests\UpdateRequest;
 
 class PlayersController extends Controller
 {
@@ -25,18 +27,8 @@ class PlayersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PlayerStoreRequest $request)
     {
-        $request->validate([
-            'name'              => 'required|string',
-            'email'             => 'required|email',
-            'player_type_id'    => 'required|integer',
-            'life'              => 'integer',
-            'attack_points'     => 'integer',
-            'defense_points'    => 'integer',
-
-        ]);
-
         $player = Player::create($request->all());
 
         return response()->json([
@@ -60,18 +52,9 @@ class PlayersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Player $player)
+    public function update(UpdateRequest $request, Player $player)
     {
-        $request->validate([
-            'name'              => 'string',
-            'email'             => 'email',
-            'player_type_id'    => 'integer',
-            'life'              => 'integer',
-            'attack_points'     => 'integer',
-            'defense_points'    => 'integer',
-
-        ]);
-
+        
         $player->update($request->all());
 
         return response()->json([

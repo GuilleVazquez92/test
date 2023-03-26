@@ -20,9 +20,7 @@ class PlayersMigrationTest extends TestCase
     public function test_players_table_columns_are_correct()
     {
         $this->assertTrue(Schema::hasColumns('players', [
-            'id',
-            'name',
-            'email',
+            'user_id',
             'player_type_id',
             'life',
             'attack_points',

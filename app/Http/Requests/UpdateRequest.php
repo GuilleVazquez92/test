@@ -31,6 +31,16 @@ class UpdateRequest extends FormRequest
             'attack_points'     => 'numeric|min:0',
             'defense_points'    => 'numeric|min:0',
             'item_type_id'      => 'numeric|min:1|exists:item_types,id',
+            'email'             => 'email',
+            'player_type_id'    => 'numeric|min:0|exists:player_types,id',
+            'life'              => 'numeric|min:0',
+            'attacker_id'        => 'numeric|min:1|exists:players,id',
+            'defender_id'        => 'numeric|min:1|exists:players,id',
+            'attack_type_id'     => 'numeric|min:1|exists:attack_types,id',
+            'damage'            => 'numeric|min:0',
+
+
+
 
         ];
     }

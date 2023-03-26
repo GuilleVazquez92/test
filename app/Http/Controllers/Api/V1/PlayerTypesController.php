@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\PlayerType;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateRequest;
+use App\Http\Requests\Players\PlayerTypeStoreRequest;
 
 class PlayerTypesController extends Controller
 {
@@ -25,12 +27,9 @@ class PlayerTypesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PlayerTypeStoreRequest $request)
     {
-        $request->validate([
-            'description' => 'required',
-        ]);
-
+        
         $playerType = PlayerType::create($request->all());
 
         return response()->json([
@@ -54,12 +53,9 @@ class PlayerTypesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, PlayerType $playerType)
+    public function update(UpdateRequest $request, PlayerType $playerType)
     {
-        $request->validate([
-            'description' => 'string',
-        ]);
-
+    
         $playerType->update($request->all());
 
         return response()->json([
