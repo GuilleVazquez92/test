@@ -15,6 +15,7 @@ class Player extends Model
         'life',
         'attack_points',
         'defense_points',
+        'ulti_active',
     ];
 
     public function user()
@@ -31,4 +32,6 @@ class Player extends Model
     {
         return $this->belongsToMany(Item::class, 'inventories');
     }
+
+    
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('life')->default(100);
             $table->integer('attack_points')->default(5);
             $table->integer('defense_points')->default(5);
+            $table->integer('ulti_active')->default(0);
             $table->timestamps();
 
         });

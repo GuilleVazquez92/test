@@ -11,6 +11,7 @@ use App\Models\Inventory;
 use App\Http\Requests\UpdateRequest;
 use App\Http\Requests\Attacks\AttackStoreRequest;
 use App\Services\AttacksService;
+use DB;
 
 class AttacksController extends Controller
 {
@@ -62,7 +63,7 @@ class AttacksController extends Controller
 
                     $latest_attack  = $this->attacksService->latest_attack($attacker_id);
 
-                    return $this->attacksService->attackCreate($attack_type,$latest_attack, $attacker_data,$defender_data,$defender_id,$request);
+                    return $this->attacksService->attackCreate($attack_type,$latest_attack, $attacker_data,$defender_data,$request);
                   
                 } else {
                     $mesagge = "The enemy is already dead, you can no longer attack him";
@@ -115,5 +116,15 @@ class AttacksController extends Controller
             'success' => true,
             'message' => 'Attack deleted successfully',
         ]);
+    }
+
+    public function checkUltiAttack()
+    {
+       
+        $players = Player::where('ulti_active', 1)->get();
+
+        return $players;
+
+       
     }
 }

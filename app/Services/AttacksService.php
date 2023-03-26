@@ -19,6 +19,7 @@ class AttacksService
 
         $return['life'] = $life;
         $return['points'] = $points;
+        $return['id']   = $player_id;
 
         return $return;
     }
@@ -45,7 +46,7 @@ class AttacksService
         return $return;
     }
 
-    public function attackCreate($attack_type, $latest_attack, $attacker_data, $defender_data, $defender_id, $request)
+    public function attackCreate($attack_type, $latest_attack, $attacker_data, $defender_data, $request)
     {
         $attack_power   = $this->power($attack_type);
         if ($attack_type == 3) {
@@ -53,6 +54,7 @@ class AttacksService
 
                 $damage          = $this->damage($attacker_data['points'], $attack_power['power'], $defender_data['points']);
                 $request['damage'] = $damage;
+                $request['ulti_active'] = 0;
 
                 $attack = Attack::create($request->all());
             } else {
@@ -63,12 +65,15 @@ class AttacksService
             $damage          = $this->damage($attacker_data['points'], $attack_power['power'], $defender_data['points']);
             $request['damage'] = $damage;
 
+            if ($attack_type == 1) {
+                Player::where('id', $attacker_data['id'])->update(['ulti_active' => 1]);
+            }
             $attack = Attack::create($request->all());
         }
 
         $life_points_update = $defender_data['life'] - $request['damage'];
 
-        $this->updateLifePoints($life_points_update, $defender_id);
+        $this->updateLifePoints($life_points_update, $defender_data['id']);
 
         return response()->json([
             'success' => true,
