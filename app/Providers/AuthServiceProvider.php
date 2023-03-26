@@ -23,6 +23,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Passport::personalAccessTokensExpireIn(now()->addMinutes(10));
+        Passport::personalAccessTokensExpireIn(now()->addHour(2));
     }
 }
