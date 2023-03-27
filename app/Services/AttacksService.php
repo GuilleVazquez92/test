@@ -54,7 +54,7 @@ class AttacksService
 
                 $damage          = $this->damage($attacker_data['points'], $attack_power['power'], $defender_data['points']);
                 $request['damage'] = $damage;
-                $request['ulti_active'] = 0;
+                Player::where('id', $attacker_data['id'])->update(['ulti_active' => 0]);
 
                 $attack = Attack::create($request->all());
             } else {

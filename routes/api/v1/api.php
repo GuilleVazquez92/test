@@ -41,8 +41,8 @@ Route::resource('/attacks', AttacksController::class)
 ->middleware(['auth:api','check.roles:player']);
 
 Route::get('/check_ulti_attack', [AttacksController::class, 'checkUltiAttack'])
-->name('check_attack');
-//->middleware(['auth:api','check.roles:admin']);
+->name('check_attack')
+->middleware(['auth:api','check.roles:admin']);
 
 
 ##############      ITEMS ROUTES                ######################
